@@ -38,7 +38,6 @@ impl DevEngine for OadevEngine{
         n - 2*m
     }
 
-    // for adev, the edf is the number of phase points, easy !
     // page 49 of the handbook of frequency analysis
     fn edf(&self, alpha: f64, n: usize, m: usize) -> f64{
         let n64 = n as f64;
@@ -53,10 +52,11 @@ impl DevEngine for OadevEngine{
                 _ => 1.25*n64*n64/m64/(n64+3.*m64)
             },
             -2. => (n64-2.)/m64*((n64-1.).powi(2)-3.*m64*(n64-1.)+4.*m64.powi(2))/(n64-3.).powi(2),
-            _ => panic!("not oadev edf estimation can be provided for noise type alpha = {}",alpha)
+            _ => panic!("no oadev edf estimation can be provided for noise type alpha = {}",alpha)
         }
     }
 
+    // TODO: last thing to complete v 0.1.0
     fn err_factor(&self, alpha: f64, edf: f64) -> f64{
         unimplemented!("");
     }

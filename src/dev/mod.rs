@@ -5,11 +5,14 @@ use crate::noise::detect::lag1::lag1_single;
 use crate::noise::detect::NoiseDetectionStrategy;
 use crate::noise::detect::noise_id;
 
+// TODO: move elsewhere
 enum DevType{
     Adev,
     Oadev,
 }
 
+// TODO: add Octave and Decade
+// TODO: move elsewhere
 enum MsGenerationSeed{
     All,
     Explicit(Vec<usize>)
@@ -53,7 +56,7 @@ pub trait DevEngine{
         }
     }
 
-    // later we shall add the preferred noise id technique; let's do that later
+    // TODO: add parallel mode
     fn compute(&self, xs: &[f64], tau0: f64, seed: &MsGenerationSeed) -> DevResult{
         // compute de avering factors
         let ms = self.generate_ms(xs.len(), &seed);
