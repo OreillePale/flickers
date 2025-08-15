@@ -12,10 +12,13 @@ impl AdevEngine{
 }
 
 impl DevEngine for AdevEngine{
-    const PREFERRED_NOISE_ID_STRATEGY: NoiseDetectionStrategy = NoiseDetectionStrategy::Lag1B1(0,2);
 
-    fn name() -> &'static str{
+    fn name(&self) -> &'static str{
         "adev"
+    }
+
+    fn preferred_noise_id_metod(&self) -> NoiseDetectionStrategy{
+        NoiseDetectionStrategy::Lag1B1(0,2)
     }
 
     fn compute_one(&self, xs: &[f64], m: usize, tau0: f64) -> f64{
@@ -38,13 +41,10 @@ impl DevEngine for AdevEngine{
         (n-1) / m - 1
     }
 
-    // for adev, the edf is the number of phase points, easy !
-    fn edf(&self, _alpha: f64, n: usize, _m: usize) -> f64{
-        n as f64
-    }
+    // for adev, the edf is the number of phase points for the given averaging factor
+    fn edf(&self, alpha: f64, n: usize, m: usize) -> f64{
 
-    fn err_factor(&self, alpha: f64, edf: f64) -> f64{
-
+        // maybe not the most intuitive place to put that here...
         let kn = match alpha.round(){
              2.0 => 0.99,
              1.0 => 0.99,
@@ -54,7 +54,13 @@ impl DevEngine for AdevEngine{
             _ => panic!("alpha = {} noise is not resolved by adev",alpha),
         };
 
-        1. / edf.sqrt() * kn
+        (self.ns(n,m) as f64) / kn/kn
+    }
+
+    
+    fn ci_factor(&self, edf: f64, _p: f64) -> (f64,f64){
+        let cif = 1. / edf.sqrt();
+        (1.-cif,1.+cif)
     }
 }
 
@@ -64,8 +70,7 @@ mod tests {
     use super::*;
     use crate::test_suite::generate_phase;
     use crate::dev::adev::AdevEngine;
-    use crate::dev::MsGenerationSeed;
-    use crate::dev::DevResult;
+    use crate::api::{*};
 
     #[test]
     fn test_single() {
@@ -99,15 +104,17 @@ mod tests {
 
         let result = engine.compute(&phases,1.,&MsGenerationSeed::Explicit(vec![10]));
 
-        assert_eq!(result.taus[0], 10.);
-        assert_eq!(result.ns[0],99);
+        assert_eq!(result.taus.unwrap()[0], 10.);
+        assert_eq!(result.ns.unwrap()[0],99);
 
-        let dev = result.devs[0];
+        let dev = result.devs.unwrap()[0];
         assert_eq!(dev as f32, 9.9657364e-02);
 
-        let ci = result.err_factors[0];
-        let dev_min = dev*ci;
+        let cis = result.cis.unwrap()[0];
+        let ci_low = cis.0;
+        let ci_high = cis.1;
 
-        assert_eq!(dev_min as f32, 8.713869e-03);
+        assert_eq!((dev - ci_low) as f32, 8.713869e-03);
+        assert_eq!((ci_high - dev) as f32, 8.713869e-03);
     }
 }

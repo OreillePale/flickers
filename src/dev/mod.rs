@@ -4,25 +4,15 @@ pub mod oadev;
 use crate::noise::detect::lag1::lag1_single;
 use crate::noise::detect::NoiseDetectionStrategy;
 use crate::noise::detect::noise_id;
-
-// TODO: move elsewhere
-enum DevType{
-    Adev,
-    Oadev,
-}
-
-// TODO: add Octave and Decade
-// TODO: move elsewhere
-enum MsGenerationSeed{
-    All,
-    Explicit(Vec<usize>)
-}
+use crate::utils::ms;
+use crate::api::{*};
+use crate::api::dev_result::{*};
 
 pub trait DevEngine{
 
-    const PREFERRED_NOISE_ID_STRATEGY: NoiseDetectionStrategy;
+    fn name(&self) -> &'static str;
 
-    fn name() -> &'static str;
+    fn preferred_noise_id_metod(&self) -> NoiseDetectionStrategy;
 
     fn compute_one(&self, xs: &[f64], m: usize, tau0: f64) -> f64;
 
@@ -32,58 +22,50 @@ pub trait DevEngine{
 
     fn m_max(&self, n: usize) -> usize;
 
-    fn generate_ms(&self, n: usize, seed: &MsGenerationSeed) -> Vec<usize>{
-        match seed{
-            MsGenerationSeed::All => {
-                let mut ms = Vec::new();
-                for i in 1..self.m_max(n)+1{
-                    ms.push(i);
-                }
-
-                ms
-            },
-            MsGenerationSeed::Explicit(mms) => {
-                let mmax = self.m_max(n);
-                let mut ms = Vec::new();
-                for m in mms{
-                    if *m <= mmax{
-                        ms.push(*m);
-                    }
-                }
-
-                ms
-            }
-        }
-    }
-
     // TODO: add parallel mode
     fn compute(&self, xs: &[f64], tau0: f64, seed: &MsGenerationSeed) -> DevResult{
         // compute de avering factors
-        let ms = self.generate_ms(xs.len(), &seed);
+        let ms = ms::generate_ms(xs.len(), self.m_max(xs.len()), &seed);
         let taus = ms.iter().map(|m| (*m as f64)*tau0).collect::<Vec<_>>();
 
-        // compute the devs; could be parallelized, maybe later
+        // compute the devs; could be parallelized; useful with theo1
         let devs = self.compute_many(&xs, &ms, tau0);
 
-        // compute the noise types
-        let alphas = ms.iter().map(|m| noise_id(&xs, *m, tau0, Self::PREFERRED_NOISE_ID_STRATEGY)).collect::<Vec<f64>>();
+        // compute the noise types; maybe this can be parallelized
+        let alphas = ms.iter().map(|m| noise_id(&xs, *m, tau0, self.preferred_noise_id_metod())).collect::<Vec<f64>>();
 
         // compute points used for calculating each dev
         let ns = ms.iter().map(|m| self.ns(xs.len(),*m)).collect::<Vec<usize>>();
 
         // compute edfs
-        let edfs = ns.iter().zip(alphas.iter()).zip(ms.iter()).map(|((n,alpha),m)| self.edf(*alpha,*n,*m)).collect::<Vec<f64>>();
+        let edfs = alphas.iter().zip(ms.iter()).map(|(alpha,m)| self.edf(*alpha,xs.len(),*m)).collect::<Vec<f64>>();
 
-        let err_factors = edfs.iter().zip(alphas.iter()).map(|(edf,alpha)| self.err_factor(*alpha,*edf)).collect::<Vec<_>>();
+        // I think that is NOT correct
+        // I should get an (sigma_min,sigma_max) pair
+        let cis = edfs.iter()
+            .map(|edf| self.ci_factor(*edf,0.025))
+            .zip(devs.iter())
+            .map(|(cif,dev)| (cif.0*dev,cif.1*dev))
+            .collect::<Vec<(_,_)>>();
 
-        DevResult{
-            taus: taus,
-            devs: devs,
-            ns: ns,
-            alphas: alphas,
-            edfs: edfs,
-            err_factors: err_factors,
-        }
+        DevResultBuilder::default()
+            .taus(Some(taus))
+            .devs(Some(devs))
+            .ns(Some(ns))
+            .alphas(Some(alphas))
+            .edfs(Some(edfs))
+            .cis(Some(cis))
+            .build().unwrap()
+
+        // // return
+        // DevResult{
+        //     taus: taus,
+        //     devs: devs,
+        //     ns: ns,
+        //     alphas: alphas,
+        //     edfs: edfs,
+        //     cis: cis,
+        // }
     }
 
     // number of points used to calculate the dev
@@ -91,14 +73,6 @@ pub trait DevEngine{
 
     fn edf(&self, alpha: f64, n: usize, m: usize) -> f64;
 
-    fn err_factor(&self, alpha: f64, edf: f64) -> f64;
-}
-
-struct DevResult{
-    taus: Vec<f64>,
-    devs: Vec<f64>,
-    ns: Vec<usize>,
-    alphas: Vec<f64>,
-    edfs: Vec<f64>,
-    err_factors: Vec<f64>
+    // no; the confidence interval is actually [sigma_min,sigma_max], not [err_min,err_max]; there is some mixup in stable32 documentation
+    fn ci_factor(&self, edf: f64, p: f64) -> (f64,f64);
 }
