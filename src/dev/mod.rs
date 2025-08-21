@@ -1,18 +1,16 @@
 pub mod adev;
 pub mod oadev;
 
-use crate::noise::detect::lag1::lag1_single;
-use crate::noise::detect::NoiseDetectionStrategy;
 use crate::noise::detect::noise_id;
+use crate::enums::{*};
 use crate::utils::ms;
-use crate::api::{*};
-use crate::api::dev_result::{*};
+use crate::dev_result::{*};
 
 pub trait DevEngine{
 
     fn name(&self) -> &'static str;
 
-    fn preferred_noise_id_metod(&self) -> NoiseDetectionStrategy;
+    fn preferred_noise_id_metod(&self) -> NoiseId;
 
     fn compute_one(&self, xs: &[f64], m: usize, tau0: f64) -> f64;
 
@@ -23,16 +21,21 @@ pub trait DevEngine{
     fn m_max(&self, n: usize) -> usize;
 
     // TODO: add parallel mode
-    fn compute(&self, xs: &[f64], tau0: f64, seed: &MsGenerationSeed) -> DevResult{
-        // compute de avering factors
-        let ms = ms::generate_ms(xs.len(), self.m_max(xs.len()), &seed);
+    fn compute(&self, xs: &[f64], tau0: f64, afs: &Afs, noise_id_method: NoiseId) -> DevResult{
+        // compute the avering factors
+        let ms = ms::generate_ms(xs.len(), self.m_max(xs.len()), &afs);
         let taus = ms.iter().map(|m| (*m as f64)*tau0).collect::<Vec<_>>();
 
         // compute the devs; could be parallelized; useful with theo1
         let devs = self.compute_many(&xs, &ms, tau0);
 
         // compute the noise types; maybe this can be parallelized
-        let alphas = ms.iter().map(|m| noise_id(&xs, *m, tau0, self.preferred_noise_id_metod())).collect::<Vec<f64>>();
+        let noise_id_method_final = match noise_id_method{
+            NoiseId::Default => self.preferred_noise_id_metod(),
+            _ => noise_id_method.clone()
+        };
+
+        let alphas = ms.iter().map(|m| noise_id(&xs, *m, tau0, noise_id_method_final.clone())).collect::<Vec<f64>>();
 
         // compute points used for calculating each dev
         let ns = ms.iter().map(|m| self.ns(xs.len(),*m)).collect::<Vec<usize>>();
@@ -55,17 +58,8 @@ pub trait DevEngine{
             .alphas(Some(alphas))
             .edfs(Some(edfs))
             .cis(Some(cis))
+            .noise_id(Some(noise_id_method_final))
             .build().unwrap()
-
-        // // return
-        // DevResult{
-        //     taus: taus,
-        //     devs: devs,
-        //     ns: ns,
-        //     alphas: alphas,
-        //     edfs: edfs,
-        //     cis: cis,
-        // }
     }
 
     // number of points used to calculate the dev

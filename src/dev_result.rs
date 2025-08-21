@@ -1,7 +1,8 @@
 use derive_builder::Builder;
-use crate::api::{DevType};
+use crate::enums::{*};
 
-#[derive(Builder)]
+#[derive(Builder, Clone, Debug)]
+// #[derive(Debug, Copy, Clone)]
 pub struct DevResult{
     #[builder(default = "None")]
     pub taus: Option<Vec<f64>>,
@@ -11,6 +12,9 @@ pub struct DevResult{
 
     #[builder(default = "None")]
     pub ns: Option<Vec<usize>>,
+
+    #[builder(default = "None")]
+    pub noise_id: Option<NoiseId>,
 
     #[builder(default = "None")]
     pub alphas: Option<Vec<f64>>,

@@ -1,8 +1,13 @@
 mod dev;
-mod test_suite;
 mod noise;
 mod utils;
 
-pub mod api;
+pub mod enums;
+pub mod test_suite;
+pub mod dev_result;
+pub mod dev_computer;
 
-use crate::api::{*};
+pub use crate::dev_result::{*};
+pub use crate::dev_computer::{*};
+pub use crate::test_suite::{*};
+pub use crate::enums::{*};

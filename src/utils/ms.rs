@@ -1,8 +1,8 @@
-use crate::api::MsGenerationSeed;
+use crate::enums::Afs;
 
-pub fn generate_ms(n: usize, mmax: usize, seed: &MsGenerationSeed) -> Vec<usize>{
-    match seed{
-        MsGenerationSeed::All => {
+pub fn generate_ms(n: usize, mmax: usize, afs: &Afs) -> Vec<usize>{
+    match afs{
+        Afs::All => {
             let mut ms = Vec::new();
             for i in 1..mmax+1{
                 ms.push(i);
@@ -10,7 +10,7 @@ pub fn generate_ms(n: usize, mmax: usize, seed: &MsGenerationSeed) -> Vec<usize>
 
             ms
         },
-        MsGenerationSeed::Explicit(mms) => {
+        Afs::Explicit(mms) => {
             let mut ms = Vec::new();
             for m in mms{
                 if *m <= mmax{
@@ -20,7 +20,7 @@ pub fn generate_ms(n: usize, mmax: usize, seed: &MsGenerationSeed) -> Vec<usize>
 
             ms
         },
-        MsGenerationSeed::Octave => {
+        Afs::Octave => {
             let mut ms = Vec::new();
             let mut m: usize = 1;
 
@@ -31,6 +31,24 @@ pub fn generate_ms(n: usize, mmax: usize, seed: &MsGenerationSeed) -> Vec<usize>
 
             ms
         },
-        _ => panic!("{:?} is not implemented yet", seed)
+        Afs::Decade => {
+            let mut ms = Vec::new();
+            let mut m: usize = 1;
+            let mut i: usize = 0;
+            let noms = [2,2,5];
+            let denoms = [1,1,2];
+
+            while m <= mmax{
+                ms.push(m);
+
+                m *= noms[i%noms.len()];
+                m /= denoms[i%denoms.len()];
+            }
+
+            ms
+        },
+        _ => panic!("{:?} is not implemented yet", afs)
     }
 }
+
+//TODO: unit tests

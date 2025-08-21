@@ -1,5 +1,5 @@
 use crate::dev::DevEngine;
-use crate::noise::detect::NoiseDetectionStrategy;
+use crate::enums::{*};
 
 pub struct AdevEngine{
 
@@ -17,8 +17,8 @@ impl DevEngine for AdevEngine{
         "adev"
     }
 
-    fn preferred_noise_id_metod(&self) -> NoiseDetectionStrategy{
-        NoiseDetectionStrategy::Lag1B1(0,2)
+    fn preferred_noise_id_metod(&self) -> NoiseId{
+        NoiseId::Lag1B1(0,2)
     }
 
     fn compute_one(&self, xs: &[f64], m: usize, tau0: f64) -> f64{
@@ -70,7 +70,8 @@ mod tests {
     use super::*;
     use crate::test_suite::generate_phase;
     use crate::dev::adev::AdevEngine;
-    use crate::api::{*};
+    use crate::enums::{*};
+    use crate::dev_computer::DevComputer;
 
     #[test]
     fn test_single() {
@@ -102,7 +103,7 @@ mod tests {
         let phases = generate_phase();
         let engine = AdevEngine::new();
 
-        let result = engine.compute(&phases,1.,&MsGenerationSeed::Explicit(vec![10]));
+        let result = engine.compute(&phases,1.,&Afs::Explicit(vec![10]), NoiseId::Default);
 
         assert_eq!(result.taus.unwrap()[0], 10.);
         assert_eq!(result.ns.unwrap()[0],99);

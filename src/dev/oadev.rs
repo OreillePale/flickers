@@ -1,5 +1,5 @@
 use crate::dev::DevEngine;
-use crate::noise::detect::NoiseDetectionStrategy;
+use crate::enums::{*};
 use crate::utils::chi2::chi_square_inv;
 
 pub struct OadevEngine{
@@ -17,8 +17,8 @@ impl DevEngine for OadevEngine{
         "oadev"
     }
 
-    fn preferred_noise_id_metod(&self) -> NoiseDetectionStrategy{
-        NoiseDetectionStrategy::Lag1B1(0,2)
+    fn preferred_noise_id_metod(&self) -> NoiseId{
+        NoiseId::Lag1B1(0,2)
     }
 
     fn compute_one(&self, xs: &[f64], m: usize, tau0: f64) -> f64{
@@ -43,12 +43,12 @@ impl DevEngine for OadevEngine{
 
     // page 49 of the handbook of frequency analysis
     fn edf(&self, alpha: f64, n: usize, m: usize) -> f64{
-        let n64 = 1001.0;
+        let n64 = n as f64;
         let m64 = m as f64;
 
-        match alpha.round() {
+        let r = match alpha.round() {
            2. => 0.5*(n64+1.)*(n64-2.*m64)/(n64-m64),
-           1. => (0.5*(n64-1.)*(1./m64-0.5*(2.*m64+1.))).sqrt(),
+           1. => ((0.5*(n64-1.)/m64).ln() * (0.25*(2.*m64+1.)*(n64-1.)).ln()).sqrt().exp(),//(0.5*(n64-1.)*(1./m64-0.5*(2.*m64+1.))).sqrt(),
            0. => ( 1.5*(n64-1.)/m64 - 2.*(n64-2.)/n64 ) * 4.*m64*m64 / (4.*m64*m64+5.),
            -1. => match m {
                 1 => 2.*(n64-2.)*(n64-2.)/(2.3*n64-4.9),
@@ -56,12 +56,22 @@ impl DevEngine for OadevEngine{
             },
             -2. => (n64-2.)/m64*((n64-1.).powi(2)-3.*m64*(n64-1.)+4.*m64.powi(2))/(n64-3.).powi(2),
             _ => panic!("no oadev edf estimation can be provided for noise type alpha = {}",alpha)
-        }
+        };
+
+        // if r < 0.{
+        //     println!("edf = {} for n={} and m={}",r,n64,m64);
+        //     return 10.0;
+        // }
+
+        println!("{},{},{},{}",alpha,n,m,r);
+
+        r
     }
 
     fn ci_factor(&self, edf: f64, _p: f64) -> (f64,f64){
 
         // use GPTs formula; let's see if this works
+        println!("{}",edf);
         let lo2 = edf/chi_square_inv(_p,edf);
         let hi2 = edf/chi_square_inv(1.-_p,edf);
 
@@ -76,7 +86,8 @@ mod tests {
     use super::*;
     use crate::test_suite::generate_phase;
     use crate::dev::oadev::OadevEngine;
-    use crate::api::MsGenerationSeed;
+    use crate::enums::{*};
+    use crate::dev_computer;
 
     #[test]
     fn test_single() {
@@ -119,7 +130,7 @@ mod tests {
         
         let engine = OadevEngine::new();
 
-        let res = engine.compute(&phases, 1.0, &MsGenerationSeed::Explicit(vec![10]));
+        let res = engine.compute(&phases, 1.0, &Afs::Explicit(vec![10]), NoiseId::Default);
 
         assert_eq!(res.devs.unwrap()[0] as f32, 9.159953e-02);
         assert_eq!(res.ns.unwrap()[0], 981);
