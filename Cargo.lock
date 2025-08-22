@@ -99,6 +99,7 @@ dependencies = [
 name = "flickers"
 version = "0.1.0"
 dependencies = [
+ "approx",
  "derive_builder",
  "statrs",
 ]

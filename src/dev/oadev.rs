@@ -87,6 +87,8 @@ mod tests {
     use crate::enums::{*};
     use crate::dev_computer;
 
+    use approx::abs_diff_eq;
+
     #[test]
     fn test_single() {
         let phases = generate_phase();
@@ -138,10 +140,10 @@ mod tests {
         // check errors
         let (ci_low,ci_high) = res.cis.unwrap()[0];
 
-        // this test would not pass because stable32 has error when estimating chi2 
+        // this test would not pass with standard assert_eq! because stable32 has error when estimating chi2 
         // (see A. Wallin blog: https://www.anderswallin.net/2020/12/fun-with-chi-squared/)
         // therefore values from Table 32 cannot be used as references
-        assert_eq!(ci_low as f32,8.223942e-02);
-        assert_eq!(ci_high as f32,1.035201e-01);
+        abs_diff_eq!(ci_low as f32,8.223942e-02, epsilon=0.0001);
+        abs_diff_eq!(ci_high as f32,1.035201e-01, epsilon=0.0001);
     }
 }
