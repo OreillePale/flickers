@@ -13,8 +13,8 @@ impl AdevEngine{
 
 impl DevEngine for AdevEngine{
 
-    fn name(&self) -> &'static str{
-        "adev"
+    fn dev(&self) -> DevType{
+        DevType::Adev
     }
 
     fn preferred_noise_id_metod(&self) -> NoiseId{

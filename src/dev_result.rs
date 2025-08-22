@@ -5,6 +5,9 @@ use crate::enums::{*};
 // #[derive(Debug, Copy, Clone)]
 pub struct DevResult{
     #[builder(default = "None")]
+    pub dev: Option<DevType>,
+
+    #[builder(default = "None")]
     pub taus: Option<Vec<f64>>,
 
     #[builder(default = "None")]

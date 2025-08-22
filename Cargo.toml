@@ -5,3 +5,4 @@ edition = "2024"
 
 [dependencies]
 derive_builder = "0.20"
+statrs = "0.18.0"

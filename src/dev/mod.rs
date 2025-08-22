@@ -8,7 +8,7 @@ use crate::dev_result::{*};
 
 pub trait DevEngine{
 
-    fn name(&self) -> &'static str;
+    fn dev(&self) -> DevType;
 
     fn preferred_noise_id_metod(&self) -> NoiseId;
 
@@ -52,6 +52,7 @@ pub trait DevEngine{
             .collect::<Vec<(_,_)>>();
 
         DevResultBuilder::default()
+            .dev(Some(self.dev()))
             .taus(Some(taus))
             .devs(Some(devs))
             .ns(Some(ns))

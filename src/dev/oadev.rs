@@ -1,6 +1,10 @@
 use crate::dev::DevEngine;
 use crate::enums::{*};
 use crate::utils::chi2::chi_square_inv;
+use statrs::distribution::{ChiSquared,InverseGamma, Continuous};
+use statrs::distribution::ContinuousCDF;
+use statrs::statistics::Distribution;
+use statrs::prec;
 
 pub struct OadevEngine{
 
@@ -13,8 +17,8 @@ impl OadevEngine{
 }
 
 impl DevEngine for OadevEngine{
-    fn name(&self) -> &'static str{
-        "oadev"
+    fn dev(&self) -> DevType{
+        DevType::Oadev
     }
 
     fn preferred_noise_id_metod(&self) -> NoiseId{
@@ -58,20 +62,14 @@ impl DevEngine for OadevEngine{
             _ => panic!("no oadev edf estimation can be provided for noise type alpha = {}",alpha)
         };
 
-        // if r < 0.{
-        //     println!("edf = {} for n={} and m={}",r,n64,m64);
-        //     return 10.0;
-        // }
-
-        println!("{},{},{},{}",alpha,n,m,r);
+        // println!("{},{},{},{}",alpha,n,m,r);
 
         r
     }
 
     fn ci_factor(&self, edf: f64, _p: f64) -> (f64,f64){
+        let chi2 = ChiSquared::new(edf).unwrap();
 
-        // use GPTs formula; let's see if this works
-        println!("{}",edf);
         let lo2 = edf/chi_square_inv(_p,edf);
         let hi2 = edf/chi_square_inv(1.-_p,edf);
 
@@ -140,12 +138,10 @@ mod tests {
         // check errors
         let (ci_low,ci_high) = res.cis.unwrap()[0];
 
-        assert_eq!(1,1);
-
         // this test would not pass because stable32 has error when estimating chi2 
         // (see A. Wallin blog: https://www.anderswallin.net/2020/12/fun-with-chi-squared/)
         // therefore values from Table 32 cannot be used as references
-        // assert_eq!(ci_low as f32,8.223942e-02);
-        // assert_eq!(ci_high as f32,1.035201e-01);
+        assert_eq!(ci_low as f32,8.223942e-02);
+        assert_eq!(ci_high as f32,1.035201e-01);
     }
 }
