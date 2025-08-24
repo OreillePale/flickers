@@ -2,7 +2,7 @@
 name = "flickers"
 version = "0.1.0"
 edition = "2024"
-authors = ["Etienne Batori <etienne.batori+flickers@gmail.com>"]
+authors = ["Etienne Batori"]
 description = "A crate for calculating Allan-like deviations and other time and frequency stability statistics functions."
 license = "MIT"
 readme = "readme.md"
