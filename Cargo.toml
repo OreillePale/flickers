@@ -2,6 +2,15 @@
 name = "flickers"
 version = "0.1.0"
 edition = "2024"
+authors = ["Etienne Batori <etienne.batori+flickers@gmail.com>"]
+description = "A crate for calculating Allan-like deviations and other time and frequency stability statistics functions."
+license = "MIT"
+readme = "readme.md"
+repository = "https://github.com/oreillepale/flickers"
+homepage = "https://github.com/oreillepale/flickers"
+documentation = "https://docs.rs/flickers"
+keywords = ["rust", "Allan deviation", "Frequency stability"]
+categories = ["mathematics"]
 
 [dependencies]
 derive_builder = "0.20"
