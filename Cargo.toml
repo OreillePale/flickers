@@ -9,7 +9,7 @@ readme = "readme.md"
 repository = "https://github.com/oreillepale/flickers"
 homepage = "https://github.com/oreillepale/flickers"
 documentation = "https://docs.rs/flickers"
-keywords = ["rust", "Allan deviation", "Frequency stability"]
+keywords = ["rust", "Allan", "Frequency"]
 categories = ["mathematics"]
 
 [dependencies]
