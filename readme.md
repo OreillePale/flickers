@@ -20,6 +20,8 @@ I have two objectives:
 Here is an example on how to calculate the Overlapping Allan deviation. For the moment the package only accepts phase as input.
 
 ```rust
+use flickers::{*};
+
 fn main(){
     // generate phase data
     let phases = test_suite::generate_phase();
