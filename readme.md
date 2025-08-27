@@ -20,7 +20,7 @@ I have two objectives:
 Here is an example on how to calculate the Overlapping Allan deviation. For the moment the package only accepts phase as input.
 
 ```rust
-use flickers::{*};
+use flickers::*;
 
 fn main(){
     // generate phase data
@@ -29,8 +29,8 @@ fn main(){
     let result = DevComputer::default()
         .with_phases(&phases)
         .with_tau0(1.)
-        .with_afs(Afs::Decade)
-        .with_noise_id(NoiseId::Default)
+        .with_afs(Afs::Decade())
+        .with_noise_id(NoiseId::Default())
         .compute();
 
     println!("{:?}",result);

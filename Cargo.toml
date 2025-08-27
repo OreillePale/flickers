@@ -1,6 +1,6 @@
 [package]
 name = "flickers"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 authors = ["Etienne Batori"]
 description = "A crate for calculating Allan-like deviations and other time and frequency stability statistics functions."
@@ -12,9 +12,21 @@ documentation = "https://docs.rs/flickers"
 keywords = ["rust", "Allan", "Frequency"]
 categories = ["mathematics"]
 
+[features]
+python = ["pyo3", "serialization","serde-pyobject"]
+serialization = ["serde","serde_json"]
+
 [dependencies]
 derive_builder = "0.20"
 statrs = "0.18.0"
+pyo3 = { version = "0.24.0", optional = true, features = ["extension-module","serde","macros"] }
+serde = { version = "1.0", features = ["derive"], optional = true }
+serde_json = { version = "1.0", optional = true }
+serde-pyobject = { version = "0.6.2", optional = true }
 
 [dev-dependencies]
 approx = "0.5.1"
+
+[lib]
+crate-type = ["rlib","cdylib"]
+

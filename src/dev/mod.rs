@@ -31,13 +31,13 @@ pub trait DevEngine{
 
         // compute the noise types; maybe this can be parallelized
         let noise_id_method_final = match noise_id_method{
-            NoiseId::Default => self.preferred_noise_id_metod(),
+            NoiseId::Default() => self.preferred_noise_id_metod(),
             _ => noise_id_method.clone()
         };
 
         let alphas = ms.iter().map(|m| noise_id(&xs, *m, tau0, noise_id_method_final.clone())).collect::<Vec<f64>>();
 
-        // compute points used for calculating each dev
+        // compute points used for calculating each
         let ns = ms.iter().map(|m| self.ns(xs.len(),*m)).collect::<Vec<usize>>();
 
         // compute edfs
@@ -51,16 +51,15 @@ pub trait DevEngine{
             .map(|(cif,dev)| (cif.0*dev,cif.1*dev))
             .collect::<Vec<(_,_)>>();
 
-        DevResultBuilder::default()
-            .dev(Some(self.dev()))
-            .taus(Some(taus))
-            .devs(Some(devs))
-            .ns(Some(ns))
-            .alphas(Some(alphas))
-            .edfs(Some(edfs))
-            .cis(Some(cis))
-            .noise_id(Some(noise_id_method_final))
-            .build().unwrap()
+        DevResult::default()
+            .with_dev(self.dev())
+            .with_taus(taus)
+            .with_devs(devs)
+            .with_ns(ns)
+            .with_alphas(alphas)
+            .with_edfs(edfs)
+            .with_cis(cis)
+            .with_noise_id(noise_id_method_final)
     }
 
     // number of points used to calculate the dev

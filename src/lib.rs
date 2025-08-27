@@ -2,6 +2,9 @@ mod dev;
 mod noise;
 mod utils;
 
+#[cfg(feature = "python")]
+mod py_module;
+
 pub mod enums;
 pub mod test_suite;
 pub mod dev_result;

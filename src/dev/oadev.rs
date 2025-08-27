@@ -22,7 +22,7 @@ impl DevEngine for OadevEngine{
     }
 
     fn preferred_noise_id_metod(&self) -> NoiseId{
-        NoiseId::Lag1B1(0,2)
+        NoiseId::Lag1B1{dmin:0,dmax:2}
     }
 
     fn compute_one(&self, xs: &[f64], m: usize, tau0: f64) -> f64{
@@ -130,7 +130,7 @@ mod tests {
         
         let engine = OadevEngine::new();
 
-        let res = engine.compute(&phases, 1.0, &Afs::Explicit(vec![10]), NoiseId::Default);
+        let res = engine.compute(&phases, 1.0, &Afs::Explicit{afs: vec![10]}, NoiseId::Default());
 
         assert_eq!(res.devs.unwrap()[0] as f32, 9.159953e-02);
         assert_eq!(res.ns.unwrap()[0], 981);

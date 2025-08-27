@@ -18,7 +18,7 @@ impl DevEngine for AdevEngine{
     }
 
     fn preferred_noise_id_metod(&self) -> NoiseId{
-        NoiseId::Lag1B1(0,2)
+        NoiseId::Lag1B1{dmin:0,dmax:2}
     }
 
     fn compute_one(&self, xs: &[f64], m: usize, tau0: f64) -> f64{
@@ -103,7 +103,7 @@ mod tests {
         let phases = generate_phase();
         let engine = AdevEngine::new();
 
-        let result = engine.compute(&phases,1.,&Afs::Explicit(vec![10]), NoiseId::Default);
+        let result = engine.compute(&phases,1.,&Afs::Explicit{afs: vec![10]}, NoiseId::Default());
 
         assert_eq!(result.taus.unwrap()[0], 10.);
         assert_eq!(result.ns.unwrap()[0],99);

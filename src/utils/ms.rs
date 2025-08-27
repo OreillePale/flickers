@@ -2,7 +2,7 @@ use crate::enums::Afs;
 
 pub fn generate_ms(n: usize, mmax: usize, afs: &Afs) -> Vec<usize>{
     match afs{
-        Afs::All => {
+        Afs::All() => {
             let mut ms = Vec::new();
             for i in 1..mmax+1{
                 ms.push(i);
@@ -10,7 +10,7 @@ pub fn generate_ms(n: usize, mmax: usize, afs: &Afs) -> Vec<usize>{
 
             ms
         },
-        Afs::Explicit(mms) => {
+        Afs::Explicit{afs: mms} => {
             let mut ms = Vec::new();
             for m in mms{
                 if *m <= mmax{
@@ -20,7 +20,7 @@ pub fn generate_ms(n: usize, mmax: usize, afs: &Afs) -> Vec<usize>{
 
             ms
         },
-        Afs::Octave => {
+        Afs::Octave() => {
             let mut ms = Vec::new();
             let mut m: usize = 1;
 
@@ -31,7 +31,7 @@ pub fn generate_ms(n: usize, mmax: usize, afs: &Afs) -> Vec<usize>{
 
             ms
         },
-        Afs::Decade => {
+        Afs::Decade() => {
             let mut ms = Vec::new();
             let mut m: usize = 1;
             let mut i: usize = 0;
@@ -41,8 +41,10 @@ pub fn generate_ms(n: usize, mmax: usize, afs: &Afs) -> Vec<usize>{
             while m <= mmax{
                 ms.push(m);
 
-                m *= noms[i%noms.len()];
-                m /= denoms[i%denoms.len()];
+                m *= noms[i%(noms.len())];
+                m /= denoms[i%(denoms.len())];
+
+                i += 1;
             }
 
             ms
