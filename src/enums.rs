@@ -1,32 +1,28 @@
-#[cfg(feature = "python")]
-use pyo3::pyclass;
-
-#[cfg_attr(feature = "python", pyclass)]
-#[cfg_attr(feature = "serialization", derive(serde::Serialize))]
+#[cfg_attr(feature = "serialization", derive(serde::Serialize,serde::Deserialize),serde(rename_all = "lowercase"))]
 #[derive(Clone,Debug)]
 pub enum DevType{
     Adev,
     Oadev
 }
 
-#[cfg_attr(feature = "python", pyclass)]
-#[cfg_attr(feature = "serialization", derive(serde::Serialize))]
+#[cfg_attr(feature = "serialization", derive(serde::Serialize,serde::Deserialize),serde(rename_all = "lowercase"))]
 #[derive(Clone,Debug)]
 pub enum Afs{
-    All(),
-    Decade(),
-    Octave(),
+    All,
+    Decade,
+    Octave,
     Explicit{afs: Vec<usize>},
     PointsPerDecade{n: usize},
 }
 
-#[cfg_attr(feature = "python", pyclass)]
-#[cfg_attr(feature = "serialization", derive(serde::Serialize))]
+// #TODO: add constant NoiseId
+#[cfg_attr(feature = "serialization", derive(serde::Serialize,serde::Deserialize),serde(rename_all = "lowercase"))]
 #[derive(Clone,Debug)]
 pub enum NoiseId{
-    Default(), // use default NoiseId algorithm based on each deviation
+    Default, // use default NoiseId algorithm based on each deviation
+    B1,
+    Rn,
     Lag1{dmin:usize,dmax:usize},
     Lag1B1{dmin:usize,dmax:usize},
-    B1(),
-    Rn(),
+    Alpha{alpha:f64},
 }

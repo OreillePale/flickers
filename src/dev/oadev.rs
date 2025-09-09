@@ -1,10 +1,6 @@
 use crate::dev::DevEngine;
 use crate::enums::{*};
 use crate::utils::chi2::chi_square_inv;
-use statrs::distribution::{ChiSquared,InverseGamma, Continuous};
-use statrs::distribution::ContinuousCDF;
-use statrs::statistics::Distribution;
-use statrs::prec;
 
 pub struct OadevEngine{
 
@@ -68,7 +64,6 @@ impl DevEngine for OadevEngine{
     }
 
     fn ci_factor(&self, edf: f64, _p: f64) -> (f64,f64){
-        let chi2 = ChiSquared::new(edf).unwrap();
 
         let lo2 = edf/chi_square_inv(_p,edf);
         let hi2 = edf/chi_square_inv(1.-_p,edf);

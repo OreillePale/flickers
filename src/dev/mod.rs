@@ -31,7 +31,7 @@ pub trait DevEngine{
 
         // compute the noise types; maybe this can be parallelized
         let noise_id_method_final = match noise_id_method{
-            NoiseId::Default() => self.preferred_noise_id_metod(),
+            NoiseId::Default => self.preferred_noise_id_metod(),
             _ => noise_id_method.clone()
         };
 

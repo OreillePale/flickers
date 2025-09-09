@@ -1,5 +1,4 @@
-use statrs::distribution::{ChiSquared, Continuous, ContinuousCDF}; //,InverseGamma, Continuous};
-use statrs::statistics::Distribution;
+use statrs::distribution::{ChiSquared, ContinuousCDF}; 
 
 // maybe that is not the best way to do it
 pub fn chi_square_inv(p: f64, df: f64) -> f64 {

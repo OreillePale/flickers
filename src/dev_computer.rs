@@ -21,8 +21,8 @@ impl<'a> DevComputer<'a>{
             phases: None,
             tau0: 1.,
             dev: DevType::Oadev,
-            afs: Afs::All(),
-            noise_id: NoiseId::Default()
+            afs: Afs::All,
+            noise_id: NoiseId::Default
         }
     }
 

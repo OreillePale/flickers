@@ -1,3 +1,5 @@
+use crate::utils::frequency2phase;
+
 pub fn generate_frequency() -> Vec<f64>{
     let mut ret: [usize; 1000] = [0;1000];
 
@@ -13,14 +15,7 @@ pub fn generate_frequency() -> Vec<f64>{
 pub fn generate_phase() -> Vec<f64>{
     let ys = generate_frequency();
 
-    let mut ret = vec![0.;ys.len()+1];
-    ret[0] = 0.;
-
-    for i in 0..ys.len(){
-        ret[i+1] = ret[i] + ys[i];
-    }
-
-    ret
+    frequency2phase(&ys, 1.)
 }
 
 #[cfg(test)]

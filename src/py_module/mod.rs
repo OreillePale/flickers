@@ -2,9 +2,9 @@ use pyo3::prelude::*;
 
 mod test_suite;
 mod dev;
+// mod translate;
 
-use crate::enums::*;
-use crate::dev_result::DevResult;
+// use crate::py_module::translate::*;
 
 #[pymodule]
 fn flickers(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -19,10 +19,10 @@ fn flickers(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_submodule(&dev_mod)?;
 
     // add enums to the package
-    m.add_class::<DevType>()?;
-    m.add_class::<Afs>()?;
-    m.add_class::<NoiseId>()?;
-    m.add_class::<DevResult>()?;
+    // m.add_class::<DevType>()?; not needed as long as devtypes do not accept parameters
+    // m.add_class::<Afs>()?;
+    // m.add_class::<NoiseId>()?;
+    // m.add_class::<DevResult>()?;
 
     Ok(())
 }
